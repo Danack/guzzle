@@ -309,4 +309,15 @@ class Client extends HttpClient implements ClientInterface
 
         return $this->commandFactory;
     }
+
+    /**
+     * Create the responseClass objects for a command.
+     *
+     * @param $className The class name as defined in the service.
+     * @param AbstractCommand $command The command that was requested.
+     * @return null Default implementation does not create any classes.
+     */
+    function createObject($className, AbstractCommand $command){
+        return null;
+    }
 }
