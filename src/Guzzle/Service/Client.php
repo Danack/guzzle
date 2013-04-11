@@ -11,6 +11,7 @@ use Guzzle\Http\Client as HttpClient;
 use Guzzle\Http\Exception\MultiTransferException;
 use Guzzle\Service\Exception\CommandTransferException;
 use Guzzle\Http\Message\RequestInterface;
+use Guzzle\Service\Command\AbstractCommand;
 use Guzzle\Service\Command\CommandInterface;
 use Guzzle\Service\Command\Factory\CompositeFactory;
 use Guzzle\Service\Command\Factory\FactoryInterface as CommandFactoryInterface;
