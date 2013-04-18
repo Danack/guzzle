@@ -79,7 +79,7 @@ class OperationResponseParser extends DefaultResponseParser
             $responseClassInterface = __NAMESPACE__ . '\ResponseClassInterface';
             $className = $operation->getResponseClass();
 
-            $object = $command->getClient()->createObject($className, $command);
+            $object = $command->getClient()->createObject($command);
 
             if ($object != null) {
                 return $object;
