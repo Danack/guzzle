@@ -18,6 +18,10 @@
         }
     ],
 
+    "conflict": {
+    	"guzzle/guzzle": "*"
+    },
+
     "replace": {
         "guzzle/batch": "self.version",
         "guzzle/cache": "self.version",
