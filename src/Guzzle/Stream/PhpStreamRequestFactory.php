@@ -15,24 +15,16 @@ use Guzzle\Http\Url;
  */
 class PhpStreamRequestFactory implements StreamRequestFactoryInterface
 {
-    /**
-     * @var resource Stream context options
-     */
+    /** @var resource Stream context options */
     protected $context;
 
-    /**
-     * @var array Stream context
-     */
+    /** @var array Stream context */
     protected $contextOptions;
 
-    /**
-     * @var Url Stream URL
-     */
+    /** @var Url Stream URL */
     protected $url;
 
-    /**
-     * @var array Last response headers received by the HTTP request
-     */
+    /** @var array Last response headers received by the HTTP request */
     protected $lastResponseHeaders;
 
     /**
@@ -219,15 +211,34 @@ class PhpStreamRequestFactory implements StreamRequestFactoryInterface
             return fopen((string) $url, 'r', false, $context);
         });
 
-        // Track the response headers of the request
-        if (isset($http_response_header)) {
-            $this->lastResponseHeaders = $http_response_header;
-        }
-
         // Determine the class to instantiate
         $className = isset($params['stream_class']) ? $params['stream_class'] : __NAMESPACE__ . '\\Stream';
 
-        return new $className($fp);
+        /** @var $stream StreamInterface */
+        $stream = new $className($fp);
+
+        // Track the response headers of the request
+        if (isset($http_response_header)) {
+            $this->lastResponseHeaders = $http_response_header;
+            $this->processResponseHeaders($stream);
+        }
+
+        return $stream;
+    }
+
+    /**
+     * Process response headers
+     *
+     * @param StreamInterface $stream
+     */
+    protected function processResponseHeaders(StreamInterface $stream)
+    {
+        // Set the size on the stream if it was returned in the response
+        foreach ($this->lastResponseHeaders as $header) {
+            if (($pos = stripos($header, 'Content-Length:')) === 0) {
+                $stream->setSize(trim(substr($header, 15)));
+            }
+        }
     }
 
     /**

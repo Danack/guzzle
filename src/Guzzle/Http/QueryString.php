@@ -11,44 +11,28 @@ use Guzzle\Http\QueryAggregator\PhpAggregator;
  */
 class QueryString extends Collection
 {
-    /**
-     * @var string Used to URL encode with rawurlencode
-     */
+    /** @var string Used to URL encode with rawurlencode */
     const RFC_3986 = 'RFC 3986';
 
-    /**
-     * @var string Used to encode with urlencode
-     */
+    /** @var string Used to encode with urlencode */
     const FORM_URLENCODED = 'application/x-www-form-urlencoded';
 
-    /**
-     * @var string Constant used to create blank query string values (e.g. ?foo)
-     */
+    /** @var string Constant used to create blank query string values (e.g. ?foo) */
     const BLANK = "_guzzle_blank_";
 
-    /**
-     * @var string The query string field separator (e.g. '&')
-     */
+    /** @var string The query string field separator (e.g. '&') */
     protected $fieldSeparator = '&';
 
-    /**
-     * @var string The query string value separator (e.g. '=')
-     */
+    /** @var string The query string value separator (e.g. '=') */
     protected $valueSeparator = '=';
 
-    /**
-     * @var bool URL encode fields and values?
-     */
+    /** @var bool URL encode fields and values */
     protected $urlEncode = 'RFC 3986';
 
-    /**
-     * @var QueryAggregatorInterface
-     */
+    /** @var QueryAggregatorInterface */
     protected $aggregator;
 
-    /**
-     * @var array Cached PHP aggregator
-     */
+    /** @var array Cached PHP aggregator */
     protected static $defaultAggregator = null;
 
     /**
@@ -62,7 +46,7 @@ class QueryString extends Collection
     {
         $q = new static();
 
-        if (0 !== strlen($query)) {
+        if ($query || $query === '0') {
             if ($query[0] == '?') {
                 $query = substr($query, 1);
             }
@@ -70,19 +54,18 @@ class QueryString extends Collection
                 $parts = explode('=', $kvp, 2);
                 $key = rawurldecode($parts[0]);
 
-                $paramIsPhpStyleArray = substr($key, -2) == '[]';
-                if ($paramIsPhpStyleArray) {
+                if ($paramIsPhpStyleArray = substr($key, -2) == '[]') {
                     $key = substr($key, 0, -2);
                 }
 
-                if (array_key_exists(1, $parts)) {
+                if (isset($parts[1])) {
                     $value = rawurldecode(str_replace('+', '%20', $parts[1]));
                     if ($paramIsPhpStyleArray && !$q->hasKey($key)) {
                         $value = array($value);
                     }
                     $q->add($key, $value);
                 } else {
-                    $q->add($key, '');
+                    $q->add($key, null);
                 }
             }
         }
@@ -97,19 +80,15 @@ class QueryString extends Collection
      */
     public function __toString()
     {
-        if (empty($this->data)) {
+        if (!$this->data) {
             return '';
         }
 
         $queryString = '';
-        $firstValue = true;
 
         foreach ($this->prepareData($this->data) as $name => $value) {
-            $value = $value === null ? array('') : (array) $value;
-            foreach ($value as $v) {
-                if ($firstValue) {
-                    $firstValue = false;
-                } else {
+            foreach ((array) $value as $v) {
+                if ($queryString) {
                     $queryString .= $this->fieldSeparator;
                 }
                 $queryString .= $name;
